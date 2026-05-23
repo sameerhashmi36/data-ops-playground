@@ -8,8 +8,8 @@ spark.sparkContext.setLogLevel("WARN")
 hdfs_path = "hdfs://localhost:9000/weather_analytics/parquet_data"
 df = spark.read.parquet(hdfs_path)
 
-# 2. Save them directly onto your laptop's local drive as a readable CSV folder
-# This will create a folder named 'local_weather_export' right where you run the script
+# 2. Save them directly onto the laptop's local drive as a readable CSV folder
+# This will create a folder named 'local_weather_export'
 local_destination = "./local_weather_export"
 print(f"📥 Exporting {df.count()} records from HDFS to local CSV at: {local_destination}...")
 
@@ -19,4 +19,4 @@ df.coalesce(1).write \
     .mode("overwrite") \
     .save(local_destination)
 
-print("✅ Export Complete! Check your local folder.")
+print("✅ Export Complete!")

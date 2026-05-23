@@ -16,7 +16,7 @@ spark = SparkSession.builder \
     .config("spark.sql.streaming.forceDeleteTempCheckpointLocation", "true") \
     .getOrCreate()
 
-# Reduce logging clutter so you can clearly see the micro-batch progress
+# Reduce logging clutter so it can clearly be seen the micro-batch progress
 spark.sparkContext.setLogLevel("WARN")
 
 # 3. Define the Schema matching the sender_burst.py JSON payload

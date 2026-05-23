@@ -139,3 +139,146 @@ The output message `only showing top 20 rows` verifies that PySpark has pulled d
 
 ---
 
+# Hadoop HDFS Storage Pipeline
+
+After validating the real-time console stream, the pipeline can be upgraded into a persistent distributed analytics system by redirecting the processed Kafka stream into Hadoop HDFS.
+
+Instead of printing records to the terminal, PySpark Structured Streaming continuously writes compressed Parquet blocks into distributed storage.
+
+---
+
+# Updated Architecture Overview
+
+```text
+                                           ┌───> [ spark_processor.py ] ──────> Console Output
+                                           │
+[ sender_burst.py ] ───> [ Kafka Broker ] ─┤
+                                           │
+                                           └───> [ spark_processor_hdfs.py ] ──> [ Hadoop HDFS ]
+                                                                                           │
+                                                                                           └───> [ export_to_local.py ] ───> Local CSV
+```
+
+---
+
+# HDFS Streaming Processor (`spark_processor_hdfs.py`)
+
+This version of the processor connects to Kafka exactly like the original stream consumer, but instead of displaying batches to the console, it writes them directly into Hadoop storage using the optimized Parquet format.
+
+---
+
+# Kafka + HDFS Stream Connection
+
+Inside `spark_processor_hdfs.py`, the Spark runtime injects the Kafka connector dependency and establishes the distributed storage stream.
+
+```python
+import os
+
+# Inject Kafka connector dependency into Spark JVM
+os.environ['PYSPARK_SUBMIT_ARGS'] = (
+    '--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 pyspark-shell'
+)
+
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("KafkaToHDFSStream") \
+    .getOrCreate()
+
+# Write streaming data into Hadoop HDFS
+query = parsed_stream_df.writeStream \
+    .format("parquet") \
+    .option("path", "hdfs://localhost:9000/weather_analytics/parquet_data") \
+    .option("checkpointLocation", "hdfs://localhost:9000/weather_analytics/checkpoints") \
+    .outputMode("append") \
+    .start()
+```
+
+---
+
+# Start the HDFS Storage Processor
+
+```bash
+python spark_processor_hdfs.py
+```
+
+The terminal will initialize the Spark session and remain mostly silent afterward.
+
+This is expected behavior because the engine is continuously compressing and committing distributed Parquet files into Hadoop storage in the background.
+
+---
+
+# Trigger the Kafka Load Generator
+
+Open a second terminal window and execute the producer:
+
+```bash
+conda activate test
+python sender_burst.py
+```
+
+The sender immediately begins transmitting high-throughput sensor bursts into Kafka.
+
+---
+
+# Distributed Storage Behavior
+
+As the stream continues running:
+
+- Kafka receives the incoming JSON packets
+- PySpark deserializes and validates the schema
+- Structured Streaming groups events into micro-batches
+- Hadoop HDFS stores the output as distributed Parquet blocks
+- Checkpoint metadata is continuously maintained for fault recovery
+
+This architecture allows the engine to scale beyond console visualization and behave like a lightweight distributed analytics warehouse.
+
+---
+
+# HDFS Record Audit (`read_hdfs_data.py`)
+
+To verify that records were successfully committed into distributed storage, execute:
+
+```bash
+python read_hdfs_data.py
+```
+
+Example output:
+
+```text
+📖 Reading files from HDFS path: hdfs://localhost:9000/weather_analytics/parquet_data...
+
+📊 Total records found in HDFS storage: 60000
+
++-----+-----------+-------+
+|   id|temperature| status|
++-----+-----------+-------+
+|50169|       24.7|HEALTHY|
++-----+-----------+-------+
+```
+
+This confirms that the Parquet blocks stored inside Hadoop are readable, valid, and fully queryable through Spark.
+
+---
+
+# Export Distributed Data to Local CSV
+
+Because Parquet files are distributed across multiple HDFS partitions, a utility script is included to flatten the data back into a single local CSV export.
+
+Run:
+
+```bash
+python export_to_local.py
+```
+
+
+A new folder will appear locally:
+
+```text
+local_weather_export/
+```
+
+containing the final CSV dataset.
+
+---
+

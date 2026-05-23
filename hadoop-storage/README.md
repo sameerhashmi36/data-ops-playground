@@ -221,13 +221,13 @@ docker exec -it hadoop-namenode hdfs dfs -ls -h /weather_analytics/parquet_data
 
 Hadoop provides a built-in browser-based dashboard for monitoring cluster activity and filesystem state.
 
-Open the following URL in your browser:
+Open the following URL in the browser:
 
 ```text
 http://localhost:9870
 ```
 
-The dashboard allows you to:
+The dashboard allows to:
 
 - Monitor cluster storage utilization
 - Inspect connected DataNodes

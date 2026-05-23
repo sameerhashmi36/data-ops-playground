@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  namenode:
+    image: apache/hadoop:3.3.6
+    container_name: hadoop-namenode
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - "9870:9870"  # HDFS Web User Interface (UI)
+      - "9000:9000"  # Spark Data Connection Port
+    env_file:
+      - ./hadoop.env
+    volumes:
+      - ./data/namenode:/opt/hadoop/data/dfs/name
+
+  datanode:
+    image: apache/hadoop:3.3.6
+    container_name: hadoop-datanode
+    hostname: datanode
+    command: ["hdfs", "datanode"]
+    ports:
+      - "9864:9864"  # DataNode Web UI
+    env_file:
+      - ./hadoop.env
+    volumes:
+      - ./data/datanode:/opt/hadoop/data/dfs/data
+    depends_on:
+      - namenode

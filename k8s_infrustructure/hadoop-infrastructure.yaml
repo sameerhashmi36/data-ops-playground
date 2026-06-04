@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hadoop-namenode
+  labels:
+    app: hadoop-namenode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hadoop-namenode
+  template:
+    metadata:
+      labels:
+        app: hadoop-namenode
+    spec:
+      containers:
+      - name: namenode
+        image: apache/hadoop:3.3.6
+        command: ["/bin/sh", "-c"]
+        # Automatically format HDFS on the very first boot, then start the NameNode daemon
+        args:
+        - |
+          if [ ! -d /opt/hadoop/dfs/name/current ]; then
+            /opt/hadoop/bin/hdfs namenode -format -force
+          fi
+          /opt/hadoop/bin/hdfs namenode
+        ports:
+        - containerPort: 9000
+        - containerPort: 9870
+        env:
+        - name: HADOOP_HOME
+          value: "/opt/hadoop"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hadoop-namenode-service
+spec:
+  selector:
+    app: hadoop-namenode
+  ports:
+  - name: hdfs
+    protocol: TCP
+    port: 9000
+    targetPort: 9000
+  - name: web
+    protocol: TCP
+    port: 9870
+    targetPort: 9870
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hadoop-datanode
+  labels:
+    app: hadoop-datanode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hadoop-datanode
+  template:
+    metadata:
+      labels:
+        app: hadoop-datanode
+    spec:
+      containers:
+      - name: datanode
+        image: apache/hadoop:3.3.6
+        command: ["/opt/hadoop/bin/hdfs"]
+        args: ["datanode"]
+        ports:
+        - containerPort: 9864
+        env:
+        - name: HADOOP_HOME
+          value: "/opt/hadoop"
+        # We tell the DataNode exactly where to find its master brain over the internal K8s network!
+        - name: CORE-SITE.XML_fs.defaultFS
+          value: "hdfs://hadoop-namenode-service:9000"

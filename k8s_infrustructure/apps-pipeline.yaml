@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-sender-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-sender
+  template:
+    metadata:
+      labels:
+        app: weather-sender
+    spec:
+      containers:
+      - name: sender
+        # This uses the exact image we built locally in Phase 2!
+        image: weather-sender:v1
+        imagePullPolicy: Never
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-processor-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-processor
+  template:
+    metadata:
+      labels:
+        app: spark-processor
+    spec:
+      containers:
+      - name: spark
+        # This uses the Spark image we built locally in Phase 2!
+        image: spark-processor-hdfs:v1
+        imagePullPolicy: Never

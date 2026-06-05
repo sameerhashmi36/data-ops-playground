@@ -27,10 +27,11 @@ weather_schema = StructType([
 ])
 
 # 4. Connect to the Live Kafka Ingestion Stream
-print("🔌 Binding consumer socket to localhost:9092 ('weather_topic')...")
+# CHANGED: Use kafka-service instead of localhost
+print("🔌 Binding consumer socket to kafka-service:9092 ('weather_topic')...")
 kafka_stream_df = spark.readStream \
     .format("kafka") \
-    .option("kafka.bootstrap.servers", "localhost:9092") \
+    .option("kafka.bootstrap.servers", "kafka-service:9092") \
     .option("subscribe", "weather_topic") \
     .option("startingOffsets", "latest") \
     .load()
@@ -42,9 +43,9 @@ parsed_stream_df = kafka_stream_df \
     .select("data.*")
 
 # 6. Stream the parsed columns into Hadoop HDFS using the Parquet storage format
-# HDFS requires a 'checkpoint location' to keep track of exactly what data has been written safely.
-hdfs_destination_path = "hdfs://localhost:9000/weather_analytics/parquet_data"
-checkpoint_path = "hdfs://localhost:9000/weather_analytics/checkpoints"
+# CHANGED: Use hadoop-namenode-service instead of localhost
+hdfs_destination_path = "hdfs://hadoop-namenode-service:9000/weather_analytics/parquet_data"
+checkpoint_path = "hdfs://hadoop-namenode-service:9000/weather_analytics/checkpoints"
 
 print(f"🚀 PySpark Engine is LIVE! Redirecting streams directly to HDFS -> {hdfs_destination_path}")
 

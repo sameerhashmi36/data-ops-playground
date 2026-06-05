@@ -16,7 +16,7 @@ spec:
       - name: sender
         # This uses the exact image we built locally in Phase 2!
         image: weather-sender:v1
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,4 +36,4 @@ spec:
       - name: spark
         # This uses the Spark image we built locally in Phase 2!
         image: spark-processor-hdfs:v1
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent

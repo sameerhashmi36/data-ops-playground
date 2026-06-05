@@ -1,7 +1,19 @@
-FROM bitnamilegacy/spark:3.5.1
-WORKDIR /app
+# FROM apache/spark:3.5.1
+# WORKDIR /app
+# USER root
+# RUN pip install kafka-python
+# COPY spark_processor_hdfs.py .
+# ENV PYSPARK_SUBMIT_ARGS="--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 pyspark-shell"
+# CMD ["spark-submit", "spark_processor_hdfs.py"]
+
+FROM apache/spark:3.5.1
+
 USER root
 RUN pip install kafka-python
+
+WORKDIR /app
 COPY spark_processor_hdfs.py .
-ENV PYSPARK_SUBMIT_ARGS="--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 pyspark-shell"
-CMD ["spark-submit", "spark_processor_hdfs.py"]
+
+# Use spark-submit as the entrypoint
+ENTRYPOINT ["/opt/spark/bin/spark-submit"]
+CMD ["spark_processor_hdfs.py"]

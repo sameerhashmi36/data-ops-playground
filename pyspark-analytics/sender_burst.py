@@ -6,7 +6,8 @@ from kafka import KafkaProducer
 # 1. Initialize the Kafka Producer
 print("Connecting to Kafka Broker...")
 producer = KafkaProducer(
-    bootstrap_servers=['localhost:9092'],
+    # bootstrap_servers=['localhost:9092'],
+    bootstrap_servers=['kafka-service:9092'],  # Use 'kafka' as the hostname in Docker
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 

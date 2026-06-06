@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crash-demo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: crash-demo
+  template:
+    metadata:
+      labels:
+        app: crash-demo
+    spec:
+      containers:
+      - name: app
+        image: alpine
+        command: ["/bin/sh"]
+        args: 
+          - -c
+          - |
+            echo "Starting app..."
+            # Simulate working for 10 seconds
+            sleep 10
+            echo "App crashed! Simulating error..."
+            exit 1  # This will kill the container
+        # Restart policy - always restart if crashed
+        # This is Kubernetes saying: "never give up on this app"

@@ -246,9 +246,9 @@ python read_hdfs_data.py
 Example output:
 
 ```text
-📖 Reading files from HDFS path: hdfs://localhost:9000/weather_analytics/parquet_data...
+ Reading files from HDFS path: hdfs://localhost:9000/weather_analytics/parquet_data...
 
-📊 Total records found in HDFS storage: 60000
+ Total records found in HDFS storage: 60000
 
 +-----+-----------+-------+
 |   id|temperature| status|

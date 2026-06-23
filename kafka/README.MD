@@ -1,10 +1,10 @@
-# Apache Kafka Playground 🎡
+# Apache Kafka Playground
 
 This sub-folder serves as the entry-point sandbox for understanding **Event-Driven Architecture** and real-time data streaming using Apache Kafka and Python.
 
 ---
 
-## 🏗️ The Architecture
+## The Architecture
 
 This setup simulates a multi-stream data pipeline running locally on a single machine:
 
@@ -16,7 +16,7 @@ This setup simulates a multi-stream data pipeline running locally on a single ma
 
 ---
 
-## 🚀 How to Run the Pipeline
+## How to Run the Pipeline
 
 Follow these quick steps to get the real-time data streaming layout flashing on your screen.
 
